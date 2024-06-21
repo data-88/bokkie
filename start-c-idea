@@ -1,0 +1,60 @@
+#include <iostream>
+#include <vector>
+#include <string>
+
+// Structure to represent a permission with basic attributes
+struct Permission {
+  int id;
+  std::string name;
+  std::vector<bool> access; // Read, Write, Execute combined
+  int level; // Permission level (higher = more access)
+};
+
+// Function to create a permission object
+Permission createPermission(int id, const std::string& name, bool read, bool write, bool execute, int level) {
+  Permission permission;
+  permission.id = id;
+  permission.name = name;
+  permission.access = {read, write, execute};
+  permission.level = level;
+  return permission;
+}
+
+// Function to check if a user permission level is sufficient for a resource
+bool hasAccess(const Permission& userPermission, const Permission& resourcePermission) {
+  // Simplified check: User level must be equal to or higher than resource level
+  return userPermission.level >= resourcePermission.level;
+}
+
+int main() {
+  // Create user permissions (example)
+  std::vector<Permission> userPermissions = {
+      createPermission(1, "ReadData", true, false, false, 1),
+      createPermission(2, "WriteData", false, true, false, 2),
+  };
+
+  // Create resource requirements (example)
+  std::vector<Permission> resourcePermissions = {
+      createPermission(1, "ReadData", true, false, false, 1),
+      createPermission(3, "DeleteData", false, true, true, 3),
+  };
+
+  // Check access for each user permission
+  for (const Permission& userPermission : userPermissions) {
+    bool accessGranted = true;
+    for (const Permission& resourcePermission : resourcePermissions) {
+      if (userPermission.id == resourcePermission.id && !hasAccess(userPermission, resourcePermission)) {
+        accessGranted = false;
+        break; // Exit inner loop if access denied for any permission
+      }
+    }
+    
+    if (accessGranted) {
+      std::cout << "User has access to permission: " << userPermission.name << std::endl;
+    } else {
+      std::cout << "User access denied for permission: " << userPermission.name << std::endl;
+    }
+  }
+
+  return 0;
+}
